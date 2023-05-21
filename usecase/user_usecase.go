@@ -1,12 +1,12 @@
 package usecase
 
 import (
+	"github.com/golang-jwt/jwt"
 	"go-test/model"
 	"go-test/repository"
+	"golang.org/x/crypto/bcrypt"
 	"os"
 	"time"
-	"github.com/golang-jwt/jwt"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type IUserUsecase interface {
@@ -23,14 +23,14 @@ func NewUserUsecase(ur repository.IUserRepository) IUserUsecase {
 }
 
 func (u *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
-	
-	hash,err := bcrypt.GenerateFromPassword([]byte(user.Password),10)
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		return model.UserResponse{}, err
 	}
 	newUser := model.User{
-		Email: user.Email,
-		Password: string(hash),
+		Email:    user.Email,
+		Password: []byte(hash),
 	}
 
 	if err := u.ur.CreateUser(&newUser); err != nil {
@@ -38,7 +38,7 @@ func (u *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 	}
 
 	resUser := model.UserResponse{
-		Id: newUser.Id,
+		Id:    newUser.Id,
 		Email: newUser.Email,
 	}
 
@@ -56,9 +56,9 @@ func (u *userUsecase) Login(user model.User) (string, error) {
 		return "", err
 	}
 
-	token :=jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": storedUser.Id,
-		"exp" : time.Now().Add(time.Hour * 24).Unix(),
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))

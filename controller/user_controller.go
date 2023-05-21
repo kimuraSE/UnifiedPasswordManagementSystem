@@ -30,7 +30,7 @@ func (uc *userController) SignUp(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	userRes,err :=uc.uu.SignUp(user)
+	userRes, err := uc.uu.SignUp(user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -44,7 +44,7 @@ func (uc *userController) Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	tokenString,err :=uc.uu.Login(user)
+	tokenString, err := uc.uu.Login(user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
